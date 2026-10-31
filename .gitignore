@@ -1,0 +1,6 @@
+# Ignore sensitive files
+*.env
+*.key
+*.secret
+*api_keys*
+.DS_Store

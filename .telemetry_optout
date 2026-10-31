@@ -1,0 +1,74 @@
+# ==============================================================================
+# Global Telemetry & Analytics Opt-Out Configuration
+# Sourced in ~/.zshenv, ~/.zshrc, and ~/.bashrc
+# ==============================================================================
+
+# Universal Standards
+export DO_NOT_TRACK=1
+export TELEMETRY_ENABLED=false
+export DISABLE_TELEMETRY=1
+export ANALYTICS_DISABLED=1
+
+# Package Managers, Languages & Runtimes
+export HOMEBREW_NO_ANALYTICS=1
+export HOMEBREW_NO_ANALYTICS_THIS_RUN=1
+export GOTELEMETRY=off
+export DOTNET_CLI_TELEMETRY_OPTOUT=1
+export DOTNET_TELEMETRY_OPTOUT=1
+export BUN_TELEMETRY=0
+export DENO_NO_TELEMETRY=1
+export YARN_ENABLE_TELEMETRY=false
+
+# Cloud, Infrastructure & Developer CLIs
+export AZURE_CORE_COLLECT_TELEMETRY=0
+export WRANGLER_SEND_METRICS=false
+export CLOUDFLARE_TELEMETRY_DISABLED=1
+export CREATE_CLOUDFLARE_TELEMETRY_DISABLED=1
+export SAM_CLI_TELEMETRY=0
+export AWS_CSM_ENABLED=false
+export SUPABASE_DISABLE_TELEMETRY=1
+export STRIPE_TELEMETRY=false
+export HASURA_GRAPHQL_ENABLE_TELEMETRY=false
+export PULUMI_SKIP_UPDATE_CHECK=1
+export INFLUX_CLI_NO_METRICS=1
+
+# HashiCorp Checkpoint Opt-Outs
+export CHECKPOINT_DISABLE=1
+export TERRAFORM_CHECKPOINT_DISABLE=1
+export PACKER_CHECKPOINT_DISABLE=1
+export VAULT_CHECKPOINT_DISABLE=1
+export CONSUL_CHECKPOINT_DISABLE=1
+export NOMAD_CHECKPOINT_DISABLE=1
+export VAGRANT_CHECKPOINT_DISABLE=1
+
+# Web Frameworks, Bundlers & Frontend Tools
+export NEXT_TELEMETRY_DISABLED=1
+export NUXT_TELEMETRY_DISABLED=1
+export ASTRO_TELEMETRY_DISABLED=1
+export GATSBY_TELEMETRY_DISABLED=1
+export STORYBOOK_DISABLE_TELEMETRY=1
+export VITE_DISABLE_TELEMETRY=true
+export TURBO_TELEMETRY_DISABLED=1
+export VERCEL_TELEMETRY_DISABLED=1
+export NG_CLI_ANALYTICS=false
+export EXPO_NO_TELEMETRY=1
+export REDWOOD_DISABLE_TELEMETRY=1
+export MUI_X_TELEMETRY_DISABLED=true
+export STG_NO_TELEMETRY=1
+
+# Git, GitHub & Mobile Tooling
+export GH_TELEMETRY=false
+export GITHUB_TELEMETRY_ENABLED=false
+export FASTLANE_OPT_OUT_USAGE=1
+
+# AI, Data Science & Observability
+export HF_HUB_DISABLE_TELEMETRY=1
+export WANDB_SILENT=true
+export WANDB_CONSOLE=off
+export CONDA_REPORT_ERRORS=false
+export DD_INSTRUMENTATION_TELEMETRY_ENABLED=false
+export SEGMENT_TELEMETRY_DISABLED=1
+export SENTRY_TELEMETRY_DISABLED=1
+export BEND_NO_TELEMETRY=1
+export PRISMA_TELEMETRY_INFORMATION_DISABLED=1
+export AUTOMATED_LAB_TOOLS_TELEMETRY_OPTOUT=1
