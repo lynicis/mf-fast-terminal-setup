@@ -1,6 +1,16 @@
-# Ignore sensitive files
+# Ignore sensitive files & credentials
 *.env
 *.key
 *.secret
 *api_keys*
+
+# Backups & Editor Swap Files
+*.bak
+*.bak.*
+*~
+*.swp
+*.swo
+
+# OS Artifacts
 .DS_Store
+Thumbs.db

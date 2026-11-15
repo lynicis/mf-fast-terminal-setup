@@ -1,0 +1,57 @@
+# Starship Configuration replicating the Half-Life theme
+# Preserves custom color palette:
+#   Purple: 135 | Limegreen: 118 | Turquoise: 81 | Orange: 166 | Hotpink: 161
+
+add_newline = false
+
+format = """
+$username\
+$directory\
+$python\
+$git_branch\
+$git_status\
+$git_state\
+$character"""
+
+# Timeout for prompt commands in milliseconds
+command_timeout = 1000
+
+[username]
+show_always = true
+style_user = "135"
+style_root = "bold red"
+format = "[$user]($style) "
+
+[directory]
+style = "118"
+format = "in [$path]($style) "
+truncation_length = 3
+truncate_to_repo = false
+
+[python]
+style = "red"
+format = "with [($virtualenv)]($style) "
+
+[git_branch]
+style = "81"
+format = "on [$branch]($style) "
+
+[git_status]
+style = ""
+format = "$all_status$ahead_behind"
+staged = "[●](118) "
+modified = "[●](166) "
+untracked = "[●](161) "
+renamed = "[●](118) "
+deleted = "[●](161) "
+conflicted = "[●](bold red) "
+ahead = "[⇡${count}](81) "
+behind = "[⇣${count}](81) "
+
+[git_state]
+style = "118"
+format = "performing a [$state( $progress_current/$progress_total)]($style) "
+
+[character]
+success_symbol = "[λ](166) "
+error_symbol = "[λ](bold red) "

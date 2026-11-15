@@ -1,0 +1,29 @@
+# Noir Cream theme for Ghostty
+# Copy to ~/.config/ghostty/themes/ or include in your config
+
+background = 0a0a0a
+foreground = e8e4dc
+cursor-color = d4c9a8
+cursor-text = 0a0a0a
+selection-background = 2a2520
+selection-foreground = e8e4dc
+
+# ANSI Colors
+palette = 0=#1a1a1a
+palette = 1=#c47a7a
+palette = 2=#9aab8a
+palette = 3=#d4c9a8
+palette = 4=#8a9aab
+palette = 5=#a38a9a
+palette = 6=#8aaba3
+palette = 7=#c8c4bc
+
+# Bright ANSI Colors
+palette = 8=#3d3d3d
+palette = 9=#d49a9a
+palette = 10=#b3c4a3
+palette = 11=#e8dfc0
+palette = 12=#a3b4c4
+palette = 13=#c3aaba
+palette = 14=#a3c4bc
+palette = 15=#e8e4dc
