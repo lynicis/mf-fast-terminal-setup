@@ -15,8 +15,10 @@ terminal-setup/
 ├── .tmux.conf              # Ergonomic tmux setup for multi-agent workflows (Ctrl-a prefix, 100k scrollback, RGB truecolor)
 ├── .config/
 │   ├── starship.toml       # Fast Starship prompt (Half-Life theme recreation)
-│   └── ghostty/themes/
-│       └── noir-cream      # Warm dark Ghostty terminal theme
+│   └── ghostty/
+│       ├── config.ghostty  # Ghostty config (copy-on-select=false, see note below)
+│       └── themes/
+│           └── noir-cream  # Warm dark Ghostty terminal theme
 ├── .zsh/                   # Fallback prompt & completions
 └── sync.sh                 # Fast symlink/sync script with automatic backup
 ```
@@ -45,6 +47,17 @@ To update the repository from your local `$HOME` files:
 ```bash
 ./sync.sh update
 ```
+
+## Note on Clipboard / Paste
+
+`config.ghostty` sets `copy-on-select = false`. With `copy-on-select = true`
+(which maps to `clipboard` on macOS), **any** selection gesture in Ghostty —
+drag-selecting text to read it, double-clicking a word, triple-clicking a
+line — silently overwrites the system clipboard on mouse release. Copy a link
+in the browser, select anything in the terminal, then press Cmd+V: the link is
+gone. Ghostty 1.4 changed the macOS default to `none` for this reason.
+
+Copy explicitly instead: `Cmd+C` in Ghostty, or tmux `Prefix + y` / `Prefix + P`.
 
 ## Note on Aliases
 

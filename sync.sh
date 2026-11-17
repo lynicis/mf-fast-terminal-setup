@@ -31,6 +31,7 @@ copy_from_home() {
   mkdir -p "${REPO_DIR}/.config/ghostty/themes"
   cp -pv "${HOME}/.config/starship.toml" "${REPO_DIR}/.config/starship.toml"
   cp -pv "${HOME}/.config/ghostty/themes/noir-cream" "${REPO_DIR}/.config/ghostty/themes/noir-cream"
+  cp -pv "${HOME}/Library/Application Support/com.mitchellh.ghostty/config.ghostty" "${REPO_DIR}/.config/ghostty/config.ghostty"
   echo "Repo updated."
 }
 
@@ -44,6 +45,7 @@ install_links() {
 
   link_file "${REPO_DIR}/.config/starship.toml" "${HOME}/.config/starship.toml"
   link_file "${REPO_DIR}/.config/ghostty/themes/noir-cream" "${HOME}/.config/ghostty/themes/noir-cream"
+  link_file "${REPO_DIR}/.config/ghostty/config.ghostty" "${HOME}/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
 
   echo "Terminal setup installed successfully."
   if [ -d "$BACKUP_DIR" ]; then

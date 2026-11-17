@@ -1,0 +1,24 @@
+# ==============================================================================
+# Ghostty terminal configuration (macOS)
+# Managed by terminal-setup/sync.sh — edit here, not in Application Support.
+# ==============================================================================
+
+theme = noir-cream
+shell-integration = zsh
+language = en
+
+# Allow apps inside the terminal to read/write the clipboard (OSC 52).
+clipboard-read = allow
+clipboard-write = allow
+
+# FIX: do NOT copy on selection.
+# `true` maps to `clipboard` on macOS, so any selection gesture (drag-selecting
+# text just to read it, double-clicking a word, triple-clicking a line) silently
+# overwrites the SYSTEM clipboard on mouse release. Copying a link in the
+# browser and then selecting anything in the terminal destroyed the link before
+# it could be pasted into a CLI app. Ghostty 1.4 changed the macOS default to
+# `none` for exactly this reason. Use Cmd+C (or tmux Prefix+y) to copy.
+copy-on-select = false
+
+font-family = Hack Nerd Font Mono
+font-size = 15
