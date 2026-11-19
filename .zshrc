@@ -88,6 +88,7 @@ _cache_completion omp "omp completions zsh" "$_comp_cache/_omp"
 _cache_completion zb "zb completion zsh" "$_comp_cache/_zb"
 _cache_completion mole "mole completion zsh" "$_comp_cache/_mole"
 _cache_completion tdl "tdl completion zsh" "$_comp_cache/_tdl"
+_cache_completion openspec "openspec completion generate zsh" "$_comp_cache/_openspec"
 unset -f _cache_completion
 
 # Load complist module before compinit for menu selection
