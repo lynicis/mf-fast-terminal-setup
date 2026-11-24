@@ -1,14 +1,14 @@
-# The following lines were added by Docker Desktop to add commands to your PATH.
-export PATH="$PATH:/Users/lynicis/.docker/bin"
-# End of Docker Desktop section.
+# Login shell PATH additions & integrations
 
-# Added by OrbStack: command-line tools and integration
-# This won't be added again if you remove it.
-source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+# Docker Desktop CLI
+[[ -d "$HOME/.docker/bin" ]] && export PATH="$PATH:$HOME/.docker/bin"
 
-# Added by Toolbox App
-export PATH="$PATH:/Users/lynicis/Library/Application Support/JetBrains/Toolbox/scripts"
+# OrbStack command-line tools and integration
+[[ -f "$HOME/.orbstack/shell/init.zsh" ]] && source "$HOME/.orbstack/shell/init.zsh" 2>/dev/null || :
 
+# JetBrains Toolbox scripts
+[[ -d "$HOME/Library/Application Support/JetBrains/Toolbox/scripts" ]] && \
+  export PATH="$PATH:$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
 
-# Added by jcode installer
-export PATH="/Users/lynicis/.local/bin:$PATH"
+# User local binaries (jcode, zerobrew, etc.)
+[[ -d "$HOME/.local/bin" ]] && export PATH="$HOME/.local/bin:$PATH"

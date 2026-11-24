@@ -10,28 +10,56 @@ link_file() {
 
   mkdir -p "$(dirname "$dest")"
 
-  if [ -e "$dest" ] && [ ! -L "$dest" ]; then
+  if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
+    echo "Already linked $dest -> $src"
+    return 0
+  fi
+
+  if [ -e "$dest" ] || [ -L "$dest" ]; then
     mkdir -p "$BACKUP_DIR"
-    echo "Backing up existing $dest -> $BACKUP_DIR/"
-    mv "$dest" "$BACKUP_DIR/"
+    local base backup_path
+    base="$(basename "$dest")"
+    backup_path="${BACKUP_DIR}/${base}"
+    if [ -e "$backup_path" ]; then
+      backup_path="${BACKUP_DIR}/${base}.$(date +%s)"
+    fi
+    echo "Backing up existing $dest -> $backup_path"
+    mv "$dest" "$backup_path"
   fi
 
   echo "Linking $src -> $dest"
   ln -sfn "$src" "$dest"
 }
 
+copy_file() {
+  local src="$1"
+  local dest="$2"
+
+  if [ ! -e "$src" ]; then
+    echo "Skipping missing $src"
+    return 0
+  fi
+
+  if [ -e "$dest" ] && [ "$src" -ef "$dest" ]; then
+    echo "Already synced (symlinked) $dest"
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$dest")"
+  cp -pv "$src" "$dest"
+}
+
 copy_from_home() {
   echo "Updating repo from Home directory..."
-  cp -pv "${HOME}/.zshrc" "${REPO_DIR}/.zshrc"
-  cp -pv "${HOME}/.zshenv" "${REPO_DIR}/.zshenv"
-  cp -pv "${HOME}/.zprofile" "${REPO_DIR}/.zprofile"
-  cp -pv "${HOME}/.telemetry_optout" "${REPO_DIR}/.telemetry_optout"
-  cp -pv "${HOME}/.tmux.conf" "${REPO_DIR}/.tmux.conf"
+  copy_file "${HOME}/.zshrc" "${REPO_DIR}/.zshrc"
+  copy_file "${HOME}/.zshenv" "${REPO_DIR}/.zshenv"
+  copy_file "${HOME}/.zprofile" "${REPO_DIR}/.zprofile"
+  copy_file "${HOME}/.telemetry_optout" "${REPO_DIR}/.telemetry_optout"
+  copy_file "${HOME}/.tmux.conf" "${REPO_DIR}/.tmux.conf"
 
-  mkdir -p "${REPO_DIR}/.config/ghostty/themes"
-  cp -pv "${HOME}/.config/starship.toml" "${REPO_DIR}/.config/starship.toml"
-  cp -pv "${HOME}/.config/ghostty/themes/noir-cream" "${REPO_DIR}/.config/ghostty/themes/noir-cream"
-  cp -pv "${HOME}/Library/Application Support/com.mitchellh.ghostty/config.ghostty" "${REPO_DIR}/.config/ghostty/config.ghostty"
+  copy_file "${HOME}/.config/starship.toml" "${REPO_DIR}/.config/starship.toml"
+  copy_file "${HOME}/.config/ghostty/themes/noir-cream" "${REPO_DIR}/.config/ghostty/themes/noir-cream"
+  copy_file "${HOME}/Library/Application Support/com.mitchellh.ghostty/config.ghostty" "${REPO_DIR}/.config/ghostty/config.ghostty"
   echo "Repo updated."
 }
 

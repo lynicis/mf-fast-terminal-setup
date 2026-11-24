@@ -19,11 +19,12 @@ terminal-setup/
 │       ├── config.ghostty  # Ghostty config (copy-on-select=false, see note below)
 │       └── themes/
 │           └── noir-cream  # Warm dark Ghostty terminal theme
-├── .zsh/                   # Fallback prompt & completions
 └── sync.sh                 # Fast symlink/sync script with automatic backup
 ```
 
 ## Prerequisites
+
+Plugins (`zsh-autosuggestions`, `zsh-syntax-highlighting`) and completions are resolved automatically from Zerobrew (`/opt/zerobrew`) with Homebrew (`/opt/homebrew`) fallback:
 
 ```bash
 brew install zsh-autosuggestions zsh-syntax-highlighting direnv fzf starship tmux

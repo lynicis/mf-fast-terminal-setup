@@ -1,3 +1,5 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
 # Starship Configuration replicating the Half-Life theme
 # Preserves custom color palette:
 #   Purple: 135 | Limegreen: 118 | Turquoise: 81 | Orange: 166 | Hotpink: 161
@@ -7,6 +9,7 @@ add_newline = false
 format = """
 $username\
 $directory\
+$direnv\
 $python\
 $git_branch\
 $git_status\
@@ -30,7 +33,7 @@ truncate_to_repo = false
 
 [python]
 style = "red"
-format = "with [($virtualenv)]($style) "
+format = "(with [$virtualenv]($style) )"
 
 [git_branch]
 style = "81"
@@ -55,3 +58,7 @@ format = "performing a [$state( $progress_current/$progress_total)]($style) "
 [character]
 success_symbol = "[λ](166) "
 error_symbol = "[λ](bold red) "
+
+[direnv]
+disabled = false
+
