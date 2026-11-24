@@ -60,11 +60,17 @@ _prepend_existing_dirs path \
   ${HOMEBREW_PREFIX:+"$HOMEBREW_PREFIX/sbin"} \
   "$HOME/.cargo/bin" \
   ${HOMEBREW_PREFIX:+"$HOMEBREW_PREFIX/opt/rustup/bin"} \
-  "$HOME/.bun/bin" \
+  "${BUN_INSTALL:-$HOME/.bun}/bin" \
   "$HOME/.local/share/uv/tools" \
   "$HOME/go/bin" \
   ${JAVA_HOME:+"$JAVA_HOME/bin"} \
   "$HOME/.pub-cache/bin"
+
+# Pin Bun's install root to ~/.bun so exporting XDG_CACHE_HOME does not redirect
+# global packages to $XDG_CACHE_HOME/.bun/install/global
+if [[ -d "$HOME/.bun" ]] || (( $+commands[bun] )); then
+  export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+fi
 
 # Default Editor (Remote vs Local, fallback to vim/vi)
 if [[ -n "${SSH_CONNECTION:-}" ]]; then
@@ -91,7 +97,7 @@ _prepend_existing_dirs fpath \
   ${HOMEBREW_PREFIX:+"$HOMEBREW_PREFIX/share/zsh/site-functions"} \
   /usr/local/share/zsh/site-functions \
   /usr/share/zsh/site-functions \
-  "$HOME/.bun"
+  "${BUN_INSTALL:-$HOME/.bun}"
 
 # Cache generated completions for CLIs missing zsh packages (avoids slow subshells on startup)
 _cache_completion() {
@@ -141,63 +147,6 @@ bindkey -M menuselect '^[[Z' reverse-menu-complete
 # 3. Interactive Plugins & Tool Integrations
 # ==============================================================================
 (( $+commands[direnv] )) && eval "$(direnv hook zsh)"
-
-# Work around Bun bug where `bun update -g` / `bun update -i -g` fails with MissingPackageJSON
-if (( $+commands[bun] )); then
-  bun() {
-    emulate -L zsh
-    [[ "${1:-}" == (update|up) ]] || { command bun "$@"; return }
-    local global_dir="${BUN_INSTALL_GLOBAL_DIR:-${BUN_INSTALL:-$HOME/.bun}/install/global}"
-    [[ -f "$global_dir/package.json" ]] || { command bun "$@"; return }
-
-    local -a args=()
-    local -i is_global=0 i
-    local arg rest
-    for (( i = 2; i <= $#; i++ )); do
-      arg="${@[i]}"
-      case "$arg" in
-        --)
-          args+=("${@[i,-1]}")
-          break
-          ;;
-        --cwd|--cwd=*)
-          command bun "$@"
-          return
-          ;;
-        -g|--global)
-          is_global=1
-          ;;
-        --*)
-          args+=("$arg")
-          ;;
-        -c|-F)
-          args+=("$arg")
-          if (( i < $# )); then
-            (( i++ ))
-            args+=("${@[i]}")
-          fi
-          ;;
-        -c*|-F*)
-          args+=("$arg")
-          ;;
-        -*g*)
-          is_global=1
-          rest="${arg//g/}"
-          [[ "$rest" != "-" ]] && args+=("$rest")
-          ;;
-        *)
-          args+=("$arg")
-          ;;
-      esac
-    done
-
-    if (( is_global )); then
-      command bun "$1" --cwd "$global_dir" "${args[@]}"
-    else
-      command bun "$@"
-    fi
-  }
-fi
 
 if (( $+commands[fzf] )); then
   # fzf >= 0.48 supports `fzf --zsh`; older distro packages use static scripts
