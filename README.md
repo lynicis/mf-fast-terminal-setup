@@ -91,4 +91,4 @@ If you edit a symlinked or copied file in `$HOME` directly and want to pull it b
 
 ## Credits
 
-- Ghostty `noir-cream` theme by [`cyucelen/noir-cream`](https://github.com/cyucelen/noir-cream).
+- Ghostty `noir-creme` theme by [cyucelen/noir-creme](https://github.com/cyucelen/noir-creme).
