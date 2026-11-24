@@ -1,6 +1,6 @@
 # terminal-setup
 
-Portable, fast Vanilla Zsh, [Starship](https://starship.rs/), [tmux](https://github.com/tmux/tmux), and [Ghostty](https://ghostty.org/) dotfiles for **macOS (Apple Silicon & Intel)** and **Linux (Debian/Ubuntu, Fedora, Arch)** — replace Oh My Zsh and Powerlevel10k with cached completions and ~50ms warm shell startup.
+Portable, fast Vanilla Zsh, [Starship](https://starship.rs/), [tmux](https://github.com/tmux/tmux), and [Ghostty](https://ghostty.org/) dotfiles for **macOS (Apple Silicon & Intel)** and **Linux (Debian/Ubuntu, Fedora, Arch)** — replace Oh My Zsh and Powerlevel10k with cached completions and ~20ms warm shell startup.
 
 **Licence:** [MIT](LICENSE).
 
