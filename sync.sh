@@ -11,25 +11,38 @@ else
   GHOSTTY_CONFIG_DEST="${XDG_CONFIG_HOME}/ghostty/config.ghostty"
 fi
 
+# Alternating pairs of: repo source path, $HOME destination path (Bash 3.2+ safe)
+CONFIG_FILES=(
+  "${REPO_DIR}/.zshrc"                            "${HOME}/.zshrc"
+  "${REPO_DIR}/.zshenv"                           "${HOME}/.zshenv"
+  "${REPO_DIR}/.zprofile"                         "${HOME}/.zprofile"
+  "${REPO_DIR}/.telemetry_optout"                 "${HOME}/.telemetry_optout"
+  "${REPO_DIR}/.tmux.conf"                        "${HOME}/.tmux.conf"
+  "${REPO_DIR}/.config/starship.toml"             "${XDG_CONFIG_HOME}/starship.toml"
+  "${REPO_DIR}/.config/ghostty/themes/noir-cream" "${XDG_CONFIG_HOME}/ghostty/themes/noir-cream"
+  "${REPO_DIR}/.config/ghostty/config.ghostty"    "${GHOSTTY_CONFIG_DEST}"
+)
+
 link_file() {
   local src="$1"
   local dest="$2"
 
   mkdir -p "$(dirname "$dest")"
 
-  if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
+  if [[ -L "$dest" && "$(readlink "$dest")" == "$src" ]]; then
     echo "Already linked $dest -> $src"
     return 0
   fi
 
-  if [ -e "$dest" ] || [ -L "$dest" ]; then
+  if [[ -e "$dest" || -L "$dest" ]]; then
     mkdir -p "$BACKUP_DIR"
-    local base backup_path
+    local base backup_path n=1
     base="$(basename "$dest")"
     backup_path="${BACKUP_DIR}/${base}"
-    if [ -e "$backup_path" ]; then
-      backup_path="${BACKUP_DIR}/${base}.$(date +%s)"
-    fi
+    while [[ -e "$backup_path" || -L "$backup_path" ]]; do
+      backup_path="${BACKUP_DIR}/${base}.${n}"
+      n=$((n + 1))
+    done
     echo "Backing up existing $dest -> $backup_path"
     mv "$dest" "$backup_path"
   fi
@@ -42,12 +55,12 @@ copy_file() {
   local src="$1"
   local dest="$2"
 
-  if [ ! -e "$src" ]; then
+  if [[ ! -e "$src" ]]; then
     echo "Skipping missing $src"
     return 0
   fi
 
-  if [ -e "$dest" ] && [ "$src" -ef "$dest" ]; then
+  if [[ -e "$dest" && "$src" -ef "$dest" ]]; then
     echo "Already synced (symlinked) $dest"
     return 0
   fi
@@ -58,45 +71,39 @@ copy_file() {
 
 copy_from_home() {
   echo "Updating repo from Home directory..."
-  copy_file "${HOME}/.zshrc" "${REPO_DIR}/.zshrc"
-  copy_file "${HOME}/.zshenv" "${REPO_DIR}/.zshenv"
-  copy_file "${HOME}/.zprofile" "${REPO_DIR}/.zprofile"
-  copy_file "${HOME}/.telemetry_optout" "${REPO_DIR}/.telemetry_optout"
-  copy_file "${HOME}/.tmux.conf" "${REPO_DIR}/.tmux.conf"
-
-  copy_file "${XDG_CONFIG_HOME}/starship.toml" "${REPO_DIR}/.config/starship.toml"
-  copy_file "${XDG_CONFIG_HOME}/ghostty/themes/noir-cream" "${REPO_DIR}/.config/ghostty/themes/noir-cream"
-  copy_file "${GHOSTTY_CONFIG_DEST}" "${REPO_DIR}/.config/ghostty/config.ghostty"
+  local i
+  for (( i = 0; i < ${#CONFIG_FILES[@]}; i += 2 )); do
+    copy_file "${CONFIG_FILES[i + 1]}" "${CONFIG_FILES[i]}"
+  done
   echo "Repo updated."
 }
 
 install_links() {
   echo "Installing symlinks to \$HOME..."
-  link_file "${REPO_DIR}/.zshrc" "${HOME}/.zshrc"
-  link_file "${REPO_DIR}/.zshenv" "${HOME}/.zshenv"
-  link_file "${REPO_DIR}/.zprofile" "${HOME}/.zprofile"
-  link_file "${REPO_DIR}/.telemetry_optout" "${HOME}/.telemetry_optout"
-  link_file "${REPO_DIR}/.tmux.conf" "${HOME}/.tmux.conf"
-
-  link_file "${REPO_DIR}/.config/starship.toml" "${XDG_CONFIG_HOME}/starship.toml"
-  link_file "${REPO_DIR}/.config/ghostty/themes/noir-cream" "${XDG_CONFIG_HOME}/ghostty/themes/noir-cream"
-  link_file "${REPO_DIR}/.config/ghostty/config.ghostty" "${GHOSTTY_CONFIG_DEST}"
+  local i
+  for (( i = 0; i < ${#CONFIG_FILES[@]}; i += 2 )); do
+    link_file "${CONFIG_FILES[i]}" "${CONFIG_FILES[i + 1]}"
+  done
 
   echo "Terminal setup installed successfully."
-  if [ -d "$BACKUP_DIR" ]; then
+  if [[ -d "$BACKUP_DIR" ]]; then
     echo "Old files safely backed up in: $BACKUP_DIR"
   fi
 }
 
-case "${1:-install}" in
-  install)
-    install_links
-    ;;
-  update|pull-from-home)
-    copy_from_home
-    ;;
-  *)
-    echo "Usage: $0 [install | update]"
-    exit 1
-    ;;
-esac
+main() {
+  case "${1:-install}" in
+    install)
+      install_links
+      ;;
+    update|pull-from-home)
+      copy_from_home
+      ;;
+    *)
+      echo "Usage: $0 [install | update]" >&2
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"

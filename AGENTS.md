@@ -16,7 +16,7 @@
 | Symlink & backup map | `sync.sh` |
 
 ## Key Conventions
-- Edit files in this repo, not `$HOME`; add new config paths to both `install_links` and `copy_from_home` in `sync.sh`.
+- Edit files in this repo, not `$HOME`; add new config paths to `CONFIG_FILES` in `sync.sh`.
 - `.config/ghostty/config.ghostty` symlinks to `~/Library/Application Support/com.mitchellh.ghostty/config.ghostty` on macOS and `${XDG_CONFIG_HOME:-~/.config}/ghostty/config.ghostty` on Linux.
 - Keep `.zshrc` free of Oh My Zsh and heavy synchronous loaders; keep personal/machine-specific defaults in `.zshrc.local.example` (`~/.zshrc.local`) and guard OS/prefix checks across macOS (`/opt/zerobrew`, `/opt/homebrew`, `/usr/local`) and Linux.
 - Keep `copy-on-select = false` in `.config/ghostty/config.ghostty` to avoid overwriting the macOS clipboard on selection.

@@ -36,6 +36,36 @@ if [[ "$OSTYPE" == darwin* ]]; then
   [[ -f /usr/lib/ssh-keychain.dylib ]] && export SSH_SK_PROVIDER="/usr/lib/ssh-keychain.dylib"
 fi
 
+# Prepend existing directories to a path-like Zsh array (unset at end of .zshrc)
+_prepend_existing_dirs() {
+  local target="$1" dir
+  shift
+  local -a valid=()
+  for dir in "$@"; do
+    [[ -n "$dir" && -d "$dir" ]] && valid+=("$dir")
+  done
+  (( ${#valid} )) && set -A "$target" "${valid[@]}" "${(@P)target}"
+}
+
+# PATH Exports (existing dirs only, prioritized left-to-right, deduplicated)
+_prepend_existing_dirs path \
+  ${ZEROBREW_PREFIX:+"$ZEROBREW_PREFIX/opt/uutils-coreutils/libexec/uubin"} \
+  ${HOMEBREW_PREFIX:+"$HOMEBREW_PREFIX/opt/uutils-coreutils/libexec/uubin"} \
+  ${ZEROBREW_BIN:+"$ZEROBREW_BIN"} \
+  ${ZEROBREW_PREFIX:+"$ZEROBREW_PREFIX/bin"} \
+  ${ZEROBREW_PREFIX:+"$ZEROBREW_PREFIX/sbin"} \
+  "$HOME/.fzf/bin" \
+  "$HOME/.local/bin" \
+  ${HOMEBREW_PREFIX:+"$HOMEBREW_PREFIX/bin"} \
+  ${HOMEBREW_PREFIX:+"$HOMEBREW_PREFIX/sbin"} \
+  "$HOME/.cargo/bin" \
+  ${HOMEBREW_PREFIX:+"$HOMEBREW_PREFIX/opt/rustup/bin"} \
+  "$HOME/.bun/bin" \
+  "$HOME/.local/share/uv/tools" \
+  "$HOME/go/bin" \
+  ${JAVA_HOME:+"$JAVA_HOME/bin"} \
+  "$HOME/.pub-cache/bin"
+
 # Default Editor (Remote vs Local, fallback to vim/vi)
 if [[ -n "${SSH_CONNECTION:-}" ]]; then
   (( $+commands[vim] )) && export EDITOR='vim' || export EDITOR='vi'
@@ -47,34 +77,6 @@ else
   export EDITOR='vi'
 fi
 
-# PATH Exports (existing dirs only, prioritized left-to-right, deduplicated)
-() {
-  local -a _candidates _valid
-  _candidates=(
-    ${ZEROBREW_PREFIX:+"$ZEROBREW_PREFIX/opt/uutils-coreutils/libexec/uubin"}
-    ${HOMEBREW_PREFIX:+"$HOMEBREW_PREFIX/opt/uutils-coreutils/libexec/uubin"}
-    ${ZEROBREW_BIN:+"$ZEROBREW_BIN"}
-    ${ZEROBREW_PREFIX:+"$ZEROBREW_PREFIX/bin"}
-    ${ZEROBREW_PREFIX:+"$ZEROBREW_PREFIX/sbin"}
-    "$HOME/.fzf/bin"
-    "$HOME/.local/bin"
-    ${HOMEBREW_PREFIX:+"$HOMEBREW_PREFIX/bin"}
-    ${HOMEBREW_PREFIX:+"$HOMEBREW_PREFIX/sbin"}
-    "$HOME/.cargo/bin"
-    ${HOMEBREW_PREFIX:+"$HOMEBREW_PREFIX/opt/rustup/bin"}
-    "$HOME/.bun/bin"
-    "$HOME/.local/share/uv/tools"
-    "$HOME/go/bin"
-    ${JAVA_HOME:+"$JAVA_HOME/bin"}
-    "$HOME/.pub-cache/bin"
-  )
-  local dir
-  for dir in $_candidates; do
-    [[ -d "$dir" ]] && _valid+=("$dir")
-  done
-  path=($_valid $path)
-}
-
 # ==============================================================================
 # 2. Completions & Fast compinit
 # ==============================================================================
@@ -83,22 +85,13 @@ _comp_cache="${XDG_CACHE_HOME}/zsh/completions"
 mkdir -p "$_comp_cache"
 
 # Add completion cache and site-functions to fpath before compinit (existing dirs only)
-() {
-  local -a _fcandidates _fvalid
-  _fcandidates=(
-    "$_comp_cache"
-    ${ZEROBREW_PREFIX:+"$ZEROBREW_PREFIX/share/zsh/site-functions"}
-    ${HOMEBREW_PREFIX:+"$HOMEBREW_PREFIX/share/zsh/site-functions"}
-    /usr/local/share/zsh/site-functions
-    /usr/share/zsh/site-functions
-    "$HOME/.bun"
-  )
-  local dir
-  for dir in $_fcandidates; do
-    [[ -d "$dir" ]] && _fvalid+=("$dir")
-  done
-  fpath=($_fvalid $fpath)
-}
+_prepend_existing_dirs fpath \
+  "$_comp_cache" \
+  ${ZEROBREW_PREFIX:+"$ZEROBREW_PREFIX/share/zsh/site-functions"} \
+  ${HOMEBREW_PREFIX:+"$HOMEBREW_PREFIX/share/zsh/site-functions"} \
+  /usr/local/share/zsh/site-functions \
+  /usr/share/zsh/site-functions \
+  "$HOME/.bun"
 
 # Cache generated completions for CLIs missing zsh packages (avoids slow subshells on startup)
 _cache_completion() {
@@ -149,10 +142,67 @@ bindkey -M menuselect '^[[Z' reverse-menu-complete
 # ==============================================================================
 (( $+commands[direnv] )) && eval "$(direnv hook zsh)"
 
+# Work around Bun bug where `bun update -g` / `bun update -i -g` fails with MissingPackageJSON
+if (( $+commands[bun] )); then
+  bun() {
+    emulate -L zsh
+    [[ "${1:-}" == (update|up) ]] || { command bun "$@"; return }
+    local global_dir="${BUN_INSTALL_GLOBAL_DIR:-${BUN_INSTALL:-$HOME/.bun}/install/global}"
+    [[ -f "$global_dir/package.json" ]] || { command bun "$@"; return }
+
+    local -a args=()
+    local -i is_global=0 i
+    local arg rest
+    for (( i = 2; i <= $#; i++ )); do
+      arg="${@[i]}"
+      case "$arg" in
+        --)
+          args+=("${@[i,-1]}")
+          break
+          ;;
+        --cwd|--cwd=*)
+          command bun "$@"
+          return
+          ;;
+        -g|--global)
+          is_global=1
+          ;;
+        --*)
+          args+=("$arg")
+          ;;
+        -c|-F)
+          args+=("$arg")
+          if (( i < $# )); then
+            (( i++ ))
+            args+=("${@[i]}")
+          fi
+          ;;
+        -c*|-F*)
+          args+=("$arg")
+          ;;
+        -*g*)
+          is_global=1
+          rest="${arg//g/}"
+          [[ "$rest" != "-" ]] && args+=("$rest")
+          ;;
+        *)
+          args+=("$arg")
+          ;;
+      esac
+    done
+
+    if (( is_global )); then
+      command bun "$1" --cwd "$global_dir" "${args[@]}"
+    else
+      command bun "$@"
+    fi
+  }
+fi
+
 if (( $+commands[fzf] )); then
   # fzf >= 0.48 supports `fzf --zsh`; older distro packages use static scripts
-  if fzf --zsh >/dev/null 2>&1; then
-    eval "$(fzf --zsh)"
+  if _fzf_init="$(fzf --zsh 2>/dev/null)" && [[ -n "$_fzf_init" ]]; then
+    eval "$_fzf_init"
   else
     for _fzf_script in \
       /usr/share/doc/fzf/examples/key-bindings.zsh \
@@ -163,21 +213,28 @@ if (( $+commands[fzf] )); then
     done
     unset _fzf_script
   fi
+  unset _fzf_init
 fi
 
+# Source a zsh plugin from standard macOS/Linux package prefixes (unset at end of .zshrc)
+_source_zsh_plugin() {
+  local plugin="$1" candidate
+  for candidate in \
+    ${ZEROBREW_PREFIX:+"$ZEROBREW_PREFIX/share/$plugin/$plugin.zsh"} \
+    ${HOMEBREW_PREFIX:+"$HOMEBREW_PREFIX/share/$plugin/$plugin.zsh"} \
+    "/usr/local/share/$plugin/$plugin.zsh" \
+    "/usr/share/$plugin/$plugin.zsh" \
+    "/usr/share/zsh/plugins/$plugin/$plugin.zsh"; do
+    if [[ -f "$candidate" ]]; then
+      source "$candidate"
+      return 0
+    fi
+  done
+  return 0
+}
+
 # Autosuggestions (must be loaded before syntax highlighting)
-for _autosuggest in \
-  ${ZEROBREW_PREFIX:+"$ZEROBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"} \
-  ${HOMEBREW_PREFIX:+"$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"} \
-  /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
-  /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
-  /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh; do
-  if [[ -f "$_autosuggest" ]]; then
-    source "$_autosuggest"
-    break
-  fi
-done
-unset _autosuggest
+_source_zsh_plugin zsh-autosuggestions
 
 # ==============================================================================
 # 4. Prompt Theme (Starship)
@@ -216,21 +273,10 @@ fi
 # Copy .zshrc.local.example -> ~/.zshrc.local to customize without touching tracked files.
 [[ -f "${ZDOTDIR:-$HOME}/.zshrc.local" ]] && source "${ZDOTDIR:-$HOME}/.zshrc.local"
 
-unset -f _cache_completion 2>/dev/null
-unset _comp_cache
-
 # ==============================================================================
 # 7. Syntax Highlighting (Must be loaded last)
 # ==============================================================================
-for _highlight in \
-  ${ZEROBREW_PREFIX:+"$ZEROBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"} \
-  ${HOMEBREW_PREFIX:+"$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"} \
-  /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
-  /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
-  /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh; do
-  if [[ -f "$_highlight" ]]; then
-    source "$_highlight"
-    break
-  fi
-done
-unset _highlight
+_source_zsh_plugin zsh-syntax-highlighting
+
+unset -f _prepend_existing_dirs _cache_completion _source_zsh_plugin 2>/dev/null
+unset _comp_cache
