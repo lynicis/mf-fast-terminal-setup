@@ -1,0 +1,120 @@
+# ==============================================================================
+# ~/.zshrc.local — Machine-local & personal overrides (NOT tracked by git)
+# Copy this file to ~/.zshrc.local and customize as needed.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. SDKs, Tools & Extra PATHs
+# ------------------------------------------------------------------------------
+# Android SDK (macOS: ~/Library/Android/sdk, Linux: ~/Android/Sdk)
+# [[ -d "$HOME/Library/Android/sdk" ]] && export ANDROID_HOME="$HOME/Library/Android/sdk"
+# [[ -d "$HOME/Android/Sdk" ]] && export ANDROID_HOME="$HOME/Android/Sdk"
+# if [[ -n "${ANDROID_HOME:-}" ]]; then
+#   export ANDROID_SDK_ROOT="$ANDROID_HOME"
+#   export ANDROID_AVD_HOME="$HOME/.android/avd"
+#   path+=(
+#     "$ANDROID_HOME/platform-tools"
+#     "$ANDROID_HOME/emulator"
+#     "$ANDROID_HOME/cmdline-tools/latest/bin"
+#   )
+# fi
+
+# Flutter
+# [[ -d "/opt/homebrew/share/flutter" ]] && export FLUTTER_ROOT="/opt/homebrew/share/flutter"
+
+# SOPS + Age
+# export SOPS_AGE_KEY_CMD="${XDG_CONFIG_HOME:-$HOME/.config}/sops/age/sops-age-key"
+# export SOPS_AGE_SSH_PRIVATE_KEY_CMD="${XDG_CONFIG_HOME:-$HOME/.config}/sops/age/sops-age-key"
+
+# Extra local PATH entries (existing dirs only)
+# for _extra_dir in \
+#   "$HOME/.local/bin/agent-wrappers" \
+#   "$HOME/.bend/bin" \
+#   "/opt/homebrew/share/google-cloud-sdk/bin" \
+#   "$HOME/Library/TinyTeX/bin/universal-darwin"; do
+#   [[ -d "$_extra_dir" ]] && path=("$_extra_dir" $path)
+# done
+# unset _extra_dir
+
+# ------------------------------------------------------------------------------
+# 2. Extra Cached CLI Completions (_cache_completion is available here)
+# ------------------------------------------------------------------------------
+# (( $+commands[coderabbit] )) && _cache_completion coderabbit "coderabbit completion zsh" "$_comp_cache/_coderabbit"
+# (( $+commands[zb] )) && { _cache_completion zb "zb completion zsh" "$_comp_cache/_zb"; compdef _zb zerobrew 2>/dev/null; }
+# (( $+commands[tdl] )) && _cache_completion tdl "tdl completion zsh" "$_comp_cache/_tdl"
+# (( $+commands[openspec] )) && _cache_completion openspec "openspec completion generate zsh" "$_comp_cache/_openspec"
+
+# ------------------------------------------------------------------------------
+# 3. Personal Aliases
+# ------------------------------------------------------------------------------
+# Package Managers (Zerobrew & Homebrew)
+# if (( $+commands[zb] )); then
+#   alias zerobrew="zb"
+#   (( $+commands[zb-brew] )) && alias brew="zb-brew"
+# fi
+# [[ -n "${HOMEBREW_PREFIX:-}" ]] && alias hbrew="${HOMEBREW_PREFIX}/bin/brew"
+
+# macOS Defaults
+# if [[ "$OSTYPE" == darwin* ]]; then
+#   alias dcNo="defaults write -g NSRecentDocumentsLimit 0"
+#   alias dcOn="defaults delete -g NSRecentDocumentsLimit"
+# fi
+
+# Android & Emulation
+# alias adbstart="android emulator start 'Medium_Phone'"
+# alias adbss="adb exec-out screencap -p >"
+# alias adbwindow="adb shell uiautomator dump /sdcard/window.xml && adb pull /sdcard/window.xml ."
+
+# GPG Security
+# alias gpgunlock="echo test | gpg --clearsign > /dev/null"
+# alias gpglock="gpgconf --kill gpg-agent"
+
+# ------------------------------------------------------------------------------
+# 4. macOS Keychain Secrets & Cached API Keys (~0.5ms)
+# ------------------------------------------------------------------------------
+# if [[ "$OSTYPE" == darwin* ]]; then
+#   add_secret() {
+#     local service="$1" secret
+#     [[ -n "$service" ]] || { echo "Usage: add_secret <service>" >&2; return 1; }
+#     read -rs "?Enter secret for ${service}: " secret
+#     echo
+#     security add-generic-password -a "$USER" -s "$service" -w "$secret" -U
+#   }
+#
+#   get_secret() {
+#     local service="$1"
+#     [[ -n "$service" ]] || { echo "Usage: get_secret <service>" >&2; return 1; }
+#     security find-generic-password -a "$USER" -s "$service" -w
+#   }
+#
+#   delete_secret() {
+#     local service="$1"
+#     [[ -n "$service" ]] || { echo "Usage: delete_secret <service>" >&2; return 1; }
+#     security delete-generic-password -a "$USER" -s "$service"
+#   }
+#
+#   _API_KEYS_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/api_keys.env"
+#   refresh_keys() {
+#     echo "Refreshing API keys from macOS Keychain..."
+#     mkdir -p "${_API_KEYS_CACHE:h}"
+#     local tmp="${_API_KEYS_CACHE}.tmp.$$"
+#     (
+#       umask 077
+#       echo "# Generated from macOS Keychain via refresh_keys" >| "$tmp"
+#       local key val
+#       for key in GEMINI_API_KEY GITHUB_MCP_PAT; do
+#         val=$(security find-generic-password -a "$USER" -s "$key" -w 2>/dev/null)
+#         [[ -n "$val" ]] && printf 'export %s=%q\n' "$key" "$val" >> "$tmp"
+#       done
+#       mv -f "$tmp" "$_API_KEYS_CACHE"
+#     )
+#     source "$_API_KEYS_CACHE"
+#     echo "Keys cached in $_API_KEYS_CACHE (mode 600)."
+#   }
+#
+#   if [[ ! -f "$_API_KEYS_CACHE" || "$HOME/.zshrc.local" -nt "$_API_KEYS_CACHE" ]]; then
+#     refresh_keys
+#   else
+#     source "$_API_KEYS_CACHE"
+#   fi
+# fi

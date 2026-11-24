@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_NAME="lynicis/mf-fast-terminal-setup"
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME}/.config}"
 BACKUP_DIR="${HOME}/.terminal_setup_backup_$(date +%Y%m%d%H%M%S)"
+
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  GHOSTTY_CONFIG_DEST="${HOME}/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
+else
+  GHOSTTY_CONFIG_DEST="${XDG_CONFIG_HOME}/ghostty/config.ghostty"
+fi
 
 link_file() {
   local src="$1"
@@ -58,9 +64,9 @@ copy_from_home() {
   copy_file "${HOME}/.telemetry_optout" "${REPO_DIR}/.telemetry_optout"
   copy_file "${HOME}/.tmux.conf" "${REPO_DIR}/.tmux.conf"
 
-  copy_file "${HOME}/.config/starship.toml" "${REPO_DIR}/.config/starship.toml"
-  copy_file "${HOME}/.config/ghostty/themes/noir-cream" "${REPO_DIR}/.config/ghostty/themes/noir-cream"
-  copy_file "${HOME}/Library/Application Support/com.mitchellh.ghostty/config.ghostty" "${REPO_DIR}/.config/ghostty/config.ghostty"
+  copy_file "${XDG_CONFIG_HOME}/starship.toml" "${REPO_DIR}/.config/starship.toml"
+  copy_file "${XDG_CONFIG_HOME}/ghostty/themes/noir-cream" "${REPO_DIR}/.config/ghostty/themes/noir-cream"
+  copy_file "${GHOSTTY_CONFIG_DEST}" "${REPO_DIR}/.config/ghostty/config.ghostty"
   echo "Repo updated."
 }
 
@@ -72,9 +78,9 @@ install_links() {
   link_file "${REPO_DIR}/.telemetry_optout" "${HOME}/.telemetry_optout"
   link_file "${REPO_DIR}/.tmux.conf" "${HOME}/.tmux.conf"
 
-  link_file "${REPO_DIR}/.config/starship.toml" "${HOME}/.config/starship.toml"
-  link_file "${REPO_DIR}/.config/ghostty/themes/noir-cream" "${HOME}/.config/ghostty/themes/noir-cream"
-  link_file "${REPO_DIR}/.config/ghostty/config.ghostty" "${HOME}/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
+  link_file "${REPO_DIR}/.config/starship.toml" "${XDG_CONFIG_HOME}/starship.toml"
+  link_file "${REPO_DIR}/.config/ghostty/themes/noir-cream" "${XDG_CONFIG_HOME}/ghostty/themes/noir-cream"
+  link_file "${REPO_DIR}/.config/ghostty/config.ghostty" "${GHOSTTY_CONFIG_DEST}"
 
   echo "Terminal setup installed successfully."
   if [ -d "$BACKUP_DIR" ]; then
