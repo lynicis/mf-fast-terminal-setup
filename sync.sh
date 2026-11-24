@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+REPO_NAME="lynicis/mf-fast-terminal-setup"
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="${HOME}/.terminal_setup_backup_$(date +%Y%m%d%H%M%S)"
 
