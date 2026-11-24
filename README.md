@@ -1,3 +1,11 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/terminal-setup-banner.gif">
+    <source media="(prefers-color-scheme: light)" srcset=".github/assets/terminal-setup-banner-light.gif">
+    <img alt="terminal-setup — Motherfucking Fast ~20ms Zsh, Starship, tmux & Ghostty" src=".github/assets/terminal-setup-banner.gif" width="100%">
+  </picture>
+</p>
+
 # Motherfucking Fast Terminal Setup
 
 Portable, fast Vanilla Zsh, [Starship](https://starship.rs/), [tmux](https://github.com/tmux/tmux), and [Ghostty](https://ghostty.org/) dotfiles for **macOS (Apple Silicon & Intel)** and **Linux (Debian/Ubuntu, Fedora, Arch)** — replace Oh My Zsh and Powerlevel10k with cached completions and ~20ms warm shell startup. Inspired by [mfwebsite.com](https://motherfuckingwebsite.com)
