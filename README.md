@@ -1,4 +1,4 @@
-# terminal-setup
+# Motherfucking Fast Terminal Setup
 
 Portable, fast Vanilla Zsh, [Starship](https://starship.rs/), [tmux](https://github.com/tmux/tmux), and [Ghostty](https://ghostty.org/) dotfiles for **macOS (Apple Silicon & Intel)** and **Linux (Debian/Ubuntu, Fedora, Arch)** — replace Oh My Zsh and Powerlevel10k with cached completions and ~20ms warm shell startup. Inspired by [mfwebsite.com](https://motherfuckingwebsite.com)
 
