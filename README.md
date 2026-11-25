@@ -2,7 +2,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset=".github/assets/terminal-setup-banner.gif">
     <source media="(prefers-color-scheme: light)" srcset=".github/assets/terminal-setup-banner-light.gif">
-    <img alt="terminal-setup — Motherfucking Fast ~20ms Zsh, Starship, tmux & Ghostty" src=".github/assets/terminal-setup-banner.gif" width="100%">
+    <img alt="terminal-setup: Motherfucking fast ~20ms zsh, Starship, tmux and Ghostty" src=".github/assets/terminal-setup-banner.gif" width="100%">
   </picture>
 </p>
 
